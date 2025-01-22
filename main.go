@@ -2,26 +2,22 @@ package main
 
 import (
 	"log"
-	"os"
+	"your-project/config"
+	"your-project/database"
+	"your-project/models"
+	"your-project/routes"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-type User struct {
-	gorm.Model
-	Name  string
-	Email string
-}
-
 func main() {
-	// Initialize the database
-	db := initDB()
+	// Load configuration
+	cfg := config.LoadConfig()
 
-	// Auto migrate the schema
-	db.AutoMigrate(&User{})
+	// Initialize the database
+	db := database.InitDB(cfg.DBURL)
+	db.AutoMigrate(&models.User{})
 
 	// Initialize the Fiber app with HTML templates
 	engine := html.New("./templates", ".html")
@@ -29,34 +25,9 @@ func main() {
 		Views: engine,
 	})
 
-	// Serve static files
-	app.Static("/static", "./static")
-
-	// Routes
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("index", fiber.Map{})
-	})
-
-	// Htmx routes
-	app.Get("/api/data", func(c *fiber.Ctx) error {
-		return c.SendString("<p>Data loaded via HTMX!</p>")
-	})
+	// Set up routes
+	routes.SetupRoutes(app, db)
 
 	// Start the server
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
-	}
-	log.Fatal(app.Listen(":" + port))
-}
-
-func initDB() *gorm.DB {
-	dsn := os.Getenv("DB_URL")
-
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
-	}
-
-	return db
+	log.Fatal(app.Listen(":" + cfg.Port))
 }

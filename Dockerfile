@@ -24,10 +24,6 @@ WORKDIR /root/
 
 # Copy the binary from the builder stage.
 COPY --from=builder /app/main .
-# Copy the templates directory.
-COPY --from=builder /app/templates ./templates
-# Copy the static directory.
-COPY --from=builder /app/static ./static
 
 # Expose the application port.
 EXPOSE 3000
