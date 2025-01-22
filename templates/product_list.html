@@ -7,7 +7,9 @@
             <p>Price: ${{ .Price }}</p>
             <p>Stock: {{ .Stock }}</p>
             <div class="card-actions justify-end">
-                <button class="btn btn-error" hx-delete="/products/{{ .ID }}" hx-swap="none">Delete</button>
+                <button class="btn btn-error" hx-delete="/products/{{ .ID }}" hx-target="#product-list" hx-swap="innerHTML">
+                    Delete
+                </button>
             </div>
         </div>
     </div>
