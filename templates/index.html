@@ -1,16 +1,21 @@
-{{ define "index" }}
-{{ template "base" . }}
-
-{{ define "embed" }}
-<div class="hero min-h-screen bg-base-200">
-    <div class="hero-content text-center">
-        <div class="max-w-md">
-            <h1 class="text-5xl font-bold">Hello there</h1>
-            <p class="py-6">Welcome to your new Fiber + Tailwind + DaisyUI app!</p>
-            <button class="btn btn-primary">Get Started</button>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@1.14.0/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/htmx.org@1.8.0"></script>
+</head>
+<body>
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold underline">
+            Hello, HTMX and DaisyUI!
+        </h1>
+        <button class="btn btn-primary" hx-get="/api/data" hx-swap="innerHTML">
+            Load Data
+        </button>
+        <div id="content"></div>
     </div>
-</div>
-{{ end }}
-
-{{ end }}
+</body>
+</html>

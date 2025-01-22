@@ -3,39 +3,60 @@ package main
 import (
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
-
-	"your-project/internal/database"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func main() {
-	// Initialize database
-	if err := database.InitDB(); err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
-	}
-	defer database.CloseDB()
+type User struct {
+	gorm.Model
+	Name  string
+	Email string
+}
 
-	// Create Fiber app
-	app := fiber.New()
+func main() {
+	// Initialize the database
+	db := initDB()
+
+	// Auto migrate the schema
+	db.AutoMigrate(&User{})
+
+	// Initialize the Fiber app with HTML templates
+	engine := html.New("./templates", ".html")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
+
+	// Serve static files
+	app.Static("/static", "./static")
 
 	// Routes
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
+		return c.Render("index", fiber.Map{})
 	})
 
-	// Graceful shutdown
-	go func() {
-		if err := app.Listen(":3000"); err != nil {
-			log.Fatalf("Server error: %v", err)
-		}
-	}()
+	// Htmx routes
+	app.Get("/api/data", func(c *fiber.Ctx) error {
+		return c.SendString("<p>Data loaded via HTMX!</p>")
+	})
 
-	// Wait for interrupt signal
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down server...")
+	// Start the server
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	log.Fatal(app.Listen(":" + port))
+}
+
+func initDB() *gorm.DB {
+	dsn := os.Getenv("DB_URL")
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
+	return db
 }
