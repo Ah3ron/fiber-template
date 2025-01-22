@@ -17,7 +17,7 @@ func main() {
 
 	// Initialize the database
 	db := database.InitDB(cfg.DBURL)
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.User{}, &models.Product{})
 
 	// Initialize the Fiber app with HTML templates
 	engine := html.New("./templates", ".html")

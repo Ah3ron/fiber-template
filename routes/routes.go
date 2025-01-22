@@ -28,4 +28,12 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	userRoutes.Get("/:id", handlers.GetUserByID(db))
 	userRoutes.Put("/:id", handlers.UpdateUser(db))
 	userRoutes.Delete("/:id", handlers.DeleteUser(db))
+
+	// Product routes
+	productRoutes := app.Group("/products")
+	productRoutes.Post("/", handlers.CreateProduct(db))
+	productRoutes.Get("/", handlers.GetAllProducts(db))
+	productRoutes.Get("/:id", handlers.GetProductByID(db))
+	productRoutes.Put("/:id", handlers.UpdateProduct(db))
+	productRoutes.Delete("/:id", handlers.DeleteProduct(db))
 }
